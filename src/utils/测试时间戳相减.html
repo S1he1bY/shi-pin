@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script>
+        function getDistanceTime(ago) {
+            let stime = new Date().getTime();  // 当前时间
+            let usedTime = stime - ago;  // 两个时间戳相差的毫秒数
+
+            let one_min = 60 * 1000;
+            let one_hour = 60 * 60 * 1000;
+            let one_day = 24 * 60 * 60 * 1000;
+            let timetxt = '';
+
+            // 获取now的时间
+            // var date = new Date(now)
+            // var nowYear = date.getFullYear();
+            // var nowMonth = date.getMonth() + 1;
+            // var nowDay = date.getDate()
+
+            // 如果相差时间大于一天
+            if (usedTime >= one_day) {
+                let disparityDay = parseInt(usedTime / one_day);  //计算相差几天
+                timetxt = disparityDay + '天前'
+
+                if (disparityDay > getCurMonthDay()) timetxt = getDistanceMonth(disparityDay) + '个月前';
+
+                if (disparityDay > getYearDay()) timetxt = parseInt(disparityDay / getYearDay()) + '年前';
+
+            } else {  // 相差时间少于一天
+                if (usedTime >= one_hour) {
+                    timetxt = parseInt(usedTime / one_hour) + '小时前'
+                } else if (usedTime >= one_min) {
+                    timetxt = parseInt(usedTime / one_min) + '分钟前'
+                } else {
+                    timetxt = '刚刚'
+                }
+            }
+            return timetxt;
+        }
+
+        // 获取相差几个月 传天数
+        function getDistanceMonth(disparityDay) {
+            let disparityMonth = 0;
+            let count = () => {
+                if (disparityDay > getCurMonthDay(disparityMonth)) {  // 相差大于一个月时
+                    disparityDay -= getCurMonthDay(disparityMonth)     // 减去那一个月的天数 getCurMonthDay就是那一个月多少天
+                    disparityMonth += 1;  // 加一个月
+                    count(disparityMonth) // 递归，
+                } else {
+                    return disparityMonth;  // 不满足if条件 结束递归，返回相差几个月(这个count函数的功能到此)
+                }
+            }
+            count(disparityMonth) // 调用count函数开始计算相差几个月
+            return disparityMonth;  // 返回相差几个月
+        }
+
+        // 获取当前月
+        function getNowMonth() {
+            return new Date().getMonth() + 1;
+        }
+
+        // 获取当前月有多少天 28,29 30 31  可以计算前面几个月有多少天，upnum是前面几个月
+        function getCurMonthDay(upnum) {
+            let day = 0;
+            let month = getNowMonth()  //获得当前月
+            if (upnum) { //如果传参 传5
+                let date = new Date(); //拿到当前系统时间  假如6月          （上面count逻辑,一开始upnum为0 就是当前月的天数减去之后还剩天数，这里的upnum=1，继续算还大于上一个月天数，再减，直到少于上一个月天数，返回相差几个月）
+                date.setMonth(date.getMonth() - upnum)  //假如upnum传5    这里getMonth少1(6-1)  5-5=0
+                month = date.getMonth() + 1;  // 0+1 =1  1月继续走下面逻辑31天
+            }
+            if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+                day = 31;
+            } else if (month == 2) {
+                if (getYearDay() == 366) day = 29   // 闰年2月
+                if (getYearDay() == 365) day = 28
+            } else {
+                day = 30
+            }
+            return day;
+        }
+
+        // 获取当前年有多少天
+        function getYearDay() {
+            let day = 365
+            let year = new Date().getFullYear()
+            if (year % 4 == 0) day = 366   // 闰年
+            return day;
+        }
+        // ----------------------------------------------计算时间戳函数到此------------------------------------------------------------
+        // let time = 1679644404
+        // let timeTxt = getDistanceTime(time * 1000)
+        // console.log('timeTxt', timeTxt)
+
+        /* function parseTime(timeStamp, format) {
+            var date = new Date(timeStamp);
+            var o = {
+                'M+': date.getMonth() + 1, //month
+                'D+': date.getDate(), //day
+                'h+': date.getHours(), //hour
+                'm+': date.getMinutes(), //minute
+                's+': date.getSeconds(), //second
+                'S': date.getMilliseconds() //millisecond
+            }
+
+            if (/(Y+)/.test(format)) {
+                format = format.replace(RegExp.$1,
+                    (date.getFullYear() + '').substr(4 - RegExp.$1.length));
+            }
+
+            for (var k in o) {
+                if (new RegExp('(' + k + ')').test(format)) {
+                    format = format.replace(RegExp.$1,
+                        RegExp.$1.length == 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length));
+                }
+            }
+            return format;
+        }
+
+        parseTime(1679644404) */
+
+
+
+        //时间戳转换为yyyy-MM-dd hh:mm:ss
+        //timestamp(秒为单位)时间戳
+        /* function format(timestamp) {
+            var date = new Date(timestamp * 1000);
+            var Y = date.getFullYear() + "-";
+            var M =
+                (date.getMonth() + 1 < 10
+                    ? "0" + (date.getMonth() + 1)
+                    : date.getMonth() + 1) + "-";
+            var D =
+                (date.getDate() < 10 ? "0" + date.getDate() : date.getDate()) + " ";
+            var h =
+                (date.getHours() < 10 ? "0" + date.getHours() : date.getHours()) + ":";
+
+            var m =
+                (date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()) +
+                ":";
+            var s =
+                date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+            return Y + M + D + h + m + s;
+        } */
+
+        //date指的是new Date(),fmt是格式化的格式
+        /* format = (date, fmt) => {
+            var o = {
+                "M+": date.getMonth() + 1,                 //月份 
+                "d+": date.getDate(),                    //日 
+                "h+": date.getHours(),                   //小时 
+                "m+": date.getMinutes(),                 //分 
+                "s+": date.getSeconds(),                 //秒 
+                "q+": Math.floor((date.getMonth() + 3) / 3), //季度 
+                "S": date.getMilliseconds()             //毫秒 
+            };
+            //(y+)匹配多个y，比如yyyy
+            if (/(y+)/.test(fmt)) {
+                // RegExp.$1是RegExp的一个属性,指的是与正则表达式匹配的第一个 子匹配(以括号为标志)字符串
+                fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            }
+            for (var k in o) {
+                if (new RegExp("(" + k + ")").test(fmt)) {
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                }
+            }
+            return fmt;
+        }
+        console.log(format(new Date(), 'yyyy/MM/dd'))//2022/09/03
+        console.log(format(new Date(), 'yyyy/MM/dd hh:mm:ss'))//2022/09/03 16:11:41
+        console.log(format(new Date(), 'mm:ss'))//18:28 */
+
+        // IOS标准时间（JSON时间格式）
+        /* var time = '2023-03-24T08:49:24.000+0000'
+        time = time.replace(/-/, '-')
+        // time = time.replace(/-/, '月')
+        time = time.replace(/T/, ' ')
+        let times = time.split('.')
+        console.log(times[0]) */
+
+        //IOS标准时间（JSON时间格式）转换为标准时间
+        function iosTurn(time){
+            time = time.replace(/-/, '-')
+            time = time.replace(/T/, ' ')
+            let times = time.split('.')
+            return times[0]
+        }
+        var a =  iosTurn('2023-03-24T08:49:24.000+0000')
+        console.log(a); //2023-03-24 08:49:24
+
+        // 时间转换为时间戳
+        var date = new Date('2023-03-24 08:49:24');
+        console.log(date); //Fri Mar 24 2023 08:49:24 GMT+0800 (中国标准时间)
+        var time1 = date.getTime(); 
+        var time2 = date.valueOf();
+        var time3 = Date.parse(date);
+        console.log(time1/1000);
+        console.log(time2/1000);
+        console.log(time3/1000);
+        //第一、第二种会精确到毫秒，第三种，只能精确到秒毫秒用000替代，注意：获取到的时间戳除以1000就可获得Unix时间戳，就可传值给后台得到。
+
+        // 日期转换成中国标准时间 最后转换为时间戳
+        function timeToNum(date){
+            time = new Date(date)
+            time2 = time.getTime();
+            return time2;
+        }
+        var b = timeToNum('2023-03-24 08:49:24')
+        console.log(b/1000);
+
+    </script>
+</body>
+
+</html>
